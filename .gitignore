@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
+texput.log
+
+# Model weights (too large for GitHub, regenerable by retraining)
+*.pth
+
+# Paper source and data (not included in public repo)
+paper/
+data/
+
+# IDE
+.vscode/
+.idea/

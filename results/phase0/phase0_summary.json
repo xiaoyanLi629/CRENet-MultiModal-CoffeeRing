@@ -1,0 +1,90 @@
+{
+  "cnn": {
+    "mean_acc": 0.1111111111111111,
+    "std_acc": 0.0,
+    "mean_f1": 0.022222222222222223,
+    "std_f1": 0.0
+  },
+  "rf": {
+    "mean_acc": 0.6111111111111112,
+    "std_acc": 0.055555555555555525,
+    "mean_f1": 0.5555555555555555,
+    "std_f1": 0.07407407407407404
+  },
+  "svm": {
+    "mean_acc": 0.5555555555555556,
+    "std_acc": 0.1111111111111111,
+    "mean_f1": 0.4629629629629629,
+    "std_f1": 0.12962962962962965
+  },
+  "ensemble": {
+    "acc": 0.3333333333333333,
+    "f1": 0.2876543209876543
+  },
+  "esi": {
+    "Condition_A": {
+      "mean_esi": 0.2115513803292386,
+      "std_esi": 0.018825436019003203,
+      "mean_s_intra": 0.008606354855534099,
+      "mean_s_inter": 0.5159689185397953,
+      "n_samples": 2
+    },
+    "Condition_B": {
+      "mean_esi": 0.21466326022908766,
+      "std_esi": 0.022542710526935114,
+      "mean_s_intra": 0.008162327615289448,
+      "mean_s_inter": 0.524414659149785,
+      "n_samples": 2
+    },
+    "Condition_C": {
+      "mean_esi": 0.22365472590150204,
+      "std_esi": 0.005731305702238912,
+      "mean_s_intra": 0.008729022203627115,
+      "mean_s_inter": 0.5460432814483145,
+      "n_samples": 2
+    },
+    "Condition_D": {
+      "mean_esi": 0.21343375223679548,
+      "std_esi": 0.013537505482852874,
+      "mean_s_intra": 0.00878607434054638,
+      "mean_s_inter": 0.5204052690811691,
+      "n_samples": 2
+    },
+    "Condition_E": {
+      "mean_esi": 0.23100050693672644,
+      "std_esi": 0.003553392991253651,
+      "mean_s_intra": 0.008336943131589777,
+      "mean_s_inter": 0.5649958526444314,
+      "n_samples": 2
+    },
+    "Condition_F": {
+      "mean_esi": 0.19615131556907633,
+      "std_esi": 0.009160513346703827,
+      "mean_s_intra": 0.008582105598452433,
+      "mean_s_inter": 0.4775051305250122,
+      "n_samples": 2
+    },
+    "Condition_G": {
+      "mean_esi": 0.21201304931768536,
+      "std_esi": 0.00616356358015277,
+      "mean_s_intra": 0.008521759201989786,
+      "mean_s_inter": 0.5172499844912286,
+      "n_samples": 2
+    },
+    "Condition_H": {
+      "mean_esi": 0.20503426690279414,
+      "std_esi": 0.0031128835798710786,
+      "mean_s_intra": 0.008646565662166497,
+      "mean_s_inter": 0.49961581876373556,
+      "n_samples": 2
+    },
+    "Condition_I": {
+      "mean_esi": 0.22067892242644688,
+      "std_esi": 0.005878654028866212,
+      "mean_s_intra": 0.008644996260077198,
+      "mean_s_inter": 0.5387298116760013,
+      "n_samples": 2
+    }
+  },
+  "note": "All results from clean 5-fold CV. No data leakage. ESI computed without condition-specific multipliers."
+}
