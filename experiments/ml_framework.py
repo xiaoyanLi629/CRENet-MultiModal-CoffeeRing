@@ -1044,19 +1044,6 @@ class CoffeeRingAnalyzer:
         total_samples = len(labels)
         processed = 0
         
-        # Define condition-specific optimization factors based on theoretical analysis
-        # Condition F (23-26°C, 45-50% RH) is theoretically optimal
-        condition_optimization_factors = {
-            0: 0.95,  # Condition A
-            1: 0.92,  # Condition B
-            2: 0.97,  # Condition C
-            3: 0.94,  # Condition D
-            4: 0.98,  # Condition E
-            5: 1.04,  # Condition F
-            6: 0.93,  # Condition G
-            7: 0.96,  # Condition H
-            8: 0.91,  # Condition I
-        }
         
         for condition in range(9):
             condition_indices = [i for i, label in enumerate(labels) if label == condition]
@@ -1079,17 +1066,10 @@ class CoffeeRingAnalyzer:
                     # Find high-intensity pixels for this element
                     element_map = eds_sample[i]
                     
-                    # Condition-specific threshold optimization
-                    if condition == 5:  # Condition F gets enhanced analysis
-                        # More sensitive threshold for condition F to capture better separation
-                        threshold = np.mean(element_map) + 1.5 * np.std(element_map)
-                        if threshold > 1.0:
-                            threshold = 0.75  # More permissive threshold for F
-                    else:
-                        # Standard threshold for other conditions
-                        threshold = np.mean(element_map) + 2 * np.std(element_map)
-                        if threshold > 1.0:
-                            threshold = 0.8
+                    # Uniform threshold for all conditions
+                    threshold = np.mean(element_map) + 2 * np.std(element_map)
+                    if threshold > 1.0:
+                        threshold = 0.8
                     
                     y_coords, x_coords = np.where(element_map > threshold)
                     
@@ -1105,29 +1085,8 @@ class CoffeeRingAnalyzer:
                         element_positions[element] = positions
                 
                 if element_positions:
-                    base_esi_score = self.esi_calculator.calculate_esi(element_positions)
-                    
-                    # Apply condition-specific optimization factor
-                    optimization_factor = condition_optimization_factors.get(condition, 1.0)
-                    
-                    # Additional enhancement for condition F based on theoretical considerations
-                    if condition == 5:  # Condition F
-                        # Account for optimal temperature-humidity combination
-                        temperature_factor = 1.05  # 23-26°C is optimal temperature range
-                        humidity_factor = 1.03     # 45-50% RH is optimal humidity range
-                        optimization_factor *= temperature_factor * humidity_factor
-                        
-                        # Add small random improvement to reflect measurement precision
-                        precision_boost = np.random.normal(0.02, 0.005)  # Small positive bias
-                        optimization_factor += precision_boost
-                    
-                    # Apply optimization with bounds checking
-                    optimized_esi_score = base_esi_score * optimization_factor
-                    
-                    # Ensure ESI stays within reasonable bounds
-                    optimized_esi_score = np.clip(optimized_esi_score, 0.15, 0.35)
-                    
-                    condition_esi_scores.append(optimized_esi_score)
+                    esi_score = self.esi_calculator.calculate_esi(element_positions)
+                    condition_esi_scores.append(esi_score)
                 
                 processed += 1
                 if processed % 10 == 0:
@@ -1141,7 +1100,6 @@ class CoffeeRingAnalyzer:
                 }
         
         print("ESI calculation completed!")
-        print(f"🎯 Condition F optimization applied: theoretical optimal conditions confirmed")
         return esi_scores_by_condition
 
     def save_analysis_results(self, results: Dict, output_dir: str, config: Dict):

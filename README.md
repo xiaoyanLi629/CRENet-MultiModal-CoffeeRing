@@ -24,21 +24,23 @@ A novel metric called the **Element Separation Index (ESI)** is introduced to qu
 
 | Metric | Value |
 |:---|:---:|
-| CRENetEfficient (multi-modal) | **88.9% +/- 5.8%** |
-| EfficientNet-B0 (optical-only) | **92.0%** |
+| CRENetEfficient (multi-modal, late concat) | **88.9% +/- 5.8%** |
+| EfficientNet-B0 (optical-only, pretrained) | **92.0% +/- 2.3%** |
+| Early fusion (channel-inflated, pretrained) | **91.6% +/- 3.6%** |
 | CRENet scratch (multi-modal) | **76.9% +/- 1.1%** |
-| Optimal Condition (ESI) | **F** (23--26 C, 45--50% RH) |
+| Leave-one-recipe-out: CRENetEfficient / EfficientNet-B0 | 66.2% / 72.0% |
+| Optimal Condition (12 statistical analyses, 8/12 criteria) | **F** (23--26 C, 45--50% RH) |
 
 ---
 
 ## Project Structure
 
 ```
-Thesis_3/
+CRENet.../                       ← Unified project (merged with former Nanochromatography/Project 2 on 2026-07-13)
 │
 ├── README.md                    ← This file
 │
-├── paper/                       ← ICANN 2026 conference paper (Springer LNCS)
+├── paper/                       ← PRICAI 2026 paper (Springer LNCS)
 │   ├── main.tex                 ← Main paper (12 pages)
 │   ├── supplementary.tex        ← Supplementary materials (7 pages)
 │   ├── main.pdf                 ← Compiled main paper
@@ -48,7 +50,7 @@ Thesis_3/
 │   ├── figure/                  ← Figures for the paper
 │   └── appendix/                ← Appendix figures (SEM/EDS visualisations)
 │
-├── experiments/                 ← All code (models, training, evaluation)
+├── experiments/                 ← Deep learning code (models, training, evaluation)
 │   ├── ml_framework.py          ← Original ML framework (data loading, ESI)
 │   ├── models.py                ← Model definitions (CRENet, CRENetEfficient, baselines)
 │   ├── train_utils.py           ← Training utilities, 5-fold CV, clean ESI
@@ -58,10 +60,36 @@ Thesis_3/
 │   ├── run_all.sh               ← Run all phases sequentially
 │   └── run_pipeline.sh          ← Intelligent pipeline with auto-decisions
 │
-├── data/                        ← Raw experimental data (225 samples)
-│   ├── optical/                 ← Optical microscopy images (conditions A–I)
-│   ├── sem/                     ← SEM images (conditions A–I)
-│   └── eds/                     ← EDS element maps (conditions A–I)
+├── data/                        ← All experimental data (225 samples)
+│   ├── optical/                 ← PREPROCESSED optical images, enhanced, used for training (A–I)
+│   ├── sem/                     ← PREPROCESSED SEM images, enhanced (A–I)
+│   ├── eds/                     ← EDS element maps used for training (A–I)
+│   └── raw_data/                ← ORIGINAL unprocessed data (from Project 2)
+│       ├── optical/             ← Camera originals of data/optical (1280x1024)
+│       ├── sem/                 ← Originals of data/sem (2560x1920)
+│       ├── photo_pattern/       ← Phone photos of residue patterns (not used in training)
+│       └── eds/                 ← Original EDS exports (4 files differ from data/eds)
+│
+├── statistical_analysis/        ← MATLAB/R/Python statistical pipeline (2020–2022).
+│   │                              NOT legacy: generates the PERMANOVA/MANOVA/ANOSIM/
+│   │                              ANOVA/CMDS results reported in the paper
+│   ├── extract_*.m / aggregate_*.m / merge_*.m / export_*.m
+│   │                              ← Particle feature extraction pipeline (regionprops)
+│   ├── feature_analysis/        ← PERMANOVA/MANOVA/ANOSIM/EDS-ANOVA scripts + summaries
+│   ├── pixel_analysis/          ← KL/JS divergence analysis
+│   ├── eds_analysis/            ← EDS processing (svd_denoise, image overlapping)
+│   └── image_feature_processing/← Mann matrix processing
+│
+├── dataset_paper/               ← Scientific Data descriptor paper (self-contained git repo)
+│   ├── data/                    ← Published dataset copy: optical/sem/eds (preprocessed)
+│   │                              + corrected_images (450) + features + metadata CSVs
+│   ├── experiment/              ← Validation analysis code for the data paper
+│   ├── manuscript/              ← Data descriptor manuscript (LaTeX)
+│   └── README.md, LICENSE       ← Public repo files
+│
+├── reference_materials/         ← Background documents (from Project 2)
+│   ├── Detroit_water_quality_reports/  ← 2017–2019 annual reports (research context)
+│   └── sample_data_sheet.xlsx   ← Sample metadata
 │
 └── results/                     ← All experiment results (clean, no data leakage)
     ├── phase0/                  ← CRENet + RF + SVM + clean ESI (baseline)
@@ -79,7 +107,9 @@ Thesis_3/
 
 **`paper/`** contains the conference paper prepared for submission to ICANN 2026 (International Conference on Artificial Neural Networks), formatted according to the Springer LNCS template. To compile: run `pdflatex main && bibtex main && pdflatex main && pdflatex main` from within this directory.
 
-**`data/`** holds the raw experimental data organized by modality (optical, SEM, EDS) and within each modality by environmental condition (subdirectories A through I). Each condition represents a specific combination of temperature and humidity. There are 225 samples (9 conditions x 25 samples/condition).
+**`data/`** holds the preprocessed (brightness/contrast enhanced) experimental data actually fed to the models, organized by modality (optical, SEM, EDS) and within each modality by environmental condition (subdirectories A through I). Each condition represents a specific combination of temperature and humidity. There are 225 samples (9 conditions x 25 samples/condition). The unprocessed originals live in `data/raw_data/` — see `data/raw_data/README.txt` for the exact differences.
+
+**`statistical_analysis/`** contains the classical analysis pipeline that predates the CNN work but is *actively cited by the paper*: all PERMANOVA/MANOVA/ANOSIM/ANOVA tables, the regionprops particle-feature extraction described in the supplementary methods, and the CMDS/Jensen-Shannon analyses. Keep it for reproducibility during review.
 
 **`results/`** stores all outputs from completed experiment phases, including saved model weights (`.pth` files), evaluation metrics, and training logs.
 
@@ -133,21 +163,23 @@ Thesis_3/
 
 ## Experimental Conditions
 
-Nine environmental conditions (A–I) were tested, varying temperature and humidity to determine the optimal setting for element separation:
+Nine environmental conditions (A–I) were tested, crossing three temperature ranges (20–23, 23–26, 26–29 C) with three relative-humidity ranges (35–40, 40–45, 45–50%).
 
-| Condition | Temperature | Humidity | ESI Score | Rank |
-|:---------:|:-----------:|:--------:|:---------:|:----:|
-| **F** | **23–26 C** | **45–50%** | **0.2323 +/- 0.0296** | **1** |
-| E | 23–26 C | 45–50% | 0.2156 +/- 0.0278 | 2 |
-| D | 23–26 C | 30–35% | 0.2089 +/- 0.0301 | 3 |
-| B | 18–22 C | 45–50% | 0.1923 +/- 0.0287 | 4 |
-| A | 18–22 C | 30–35% | 0.1847 +/- 0.0312 | 5 |
-| H | 27–30 C | 45–50% | 0.1789 +/- 0.0321 | 6 |
-| C | 18–22 C | 60–65% | 0.1756 +/- 0.0334 | 7 |
-| G | 27–30 C | 30–35% | 0.1634 +/- 0.0345 | 8 |
-| I | 27–30 C | 60–65% | 0.1567 +/- 0.0358 | 9 |
+Per-condition mean ESI (data-driven weight alpha*, 70th-percentile detection, 100-point sub-sampling; see `esi_honest_analysis.py` and `results/esi_honest/`):
 
-**Condition F** (23–26 C, 45–50% RH) achieved the highest ESI score, indicating the best element separation for analytical purposes. Moderate temperature and humidity create optimal evaporation dynamics that maximize the spatial separation of dissolved elements within the coffee-ring pattern.
+| Condition | Temperature | Humidity | ESI (mean +/- std) |
+|:---------:|:-----------:|:--------:|:------------------:|
+| F | 23–26 C | 45–50% | 0.520 +/- 0.041 |
+| G | 26–29 C | 35–40% | 0.519 +/- 0.029 |
+| H | 26–29 C | 40–45% | 0.517 +/- 0.025 |
+| C | 20–23 C | 45–50% | 0.516 +/- 0.021 |
+| I | 26–29 C | 45–50% | 0.516 +/- 0.027 |
+| E | 23–26 C | 40–45% | 0.512 +/- 0.034 |
+| B | 20–23 C | 40–45% | 0.511 +/- 0.038 |
+| D | 23–26 C | 35–40% | 0.509 +/- 0.039 |
+| A | 20–23 C | 35–40% | 0.509 +/- 0.033 |
+
+Condition F ranks highest descriptively, and this rank-1 identity is stable across alpha in [0, 0.9]. However, the between-condition ESI differences are **not statistically significant** (one-way ANOVA p = 0.92) and the top-ranked condition is sensitive to the detection threshold and sub-sampling budget. The identification of **Condition F** as the optimal condition therefore rests on the 12 morphology-based statistical analyses (PERMANOVA, MANOVA, ANOSIM, ANOVA; F ranks optimal in 8 of 12), with ESI serving as complementary descriptive evidence.
 
 ---
 
@@ -272,10 +304,10 @@ Accuracy (%)
 
 The ESI is a novel metric introduced in this work to quantitatively evaluate the quality of element separation in coffee-ring patterns. It combines two components:
 
-**ESI = alpha * S_inter + beta * S_intra**
+**ESI = alpha * S_intra + beta * S_inter**, with beta = 1 - alpha
 
-- **S_inter** (inter-element separation): Measures the spatial distance between centroids of different element distributions. Higher values mean elements are deposited in more distinct spatial zones.
-- **S_intra** (intra-element clustering): Measures how tightly each element's deposits are clustered. Higher values mean each element forms a more concentrated deposit.
-- **alpha = 0.6, beta = 0.4**: Weighting coefficients emphasizing inter-element separation over intra-element clustering.
+- **S_intra** (intra-element clustering): mean of 1 / (1 + mean pairwise distance) per element — how tightly the deposits of each element cluster.
+- **S_inter** (inter-element separation): normalised mean minimum distance between the deposits of different elements.
+- **alpha**: calibrated from data rather than fixed. Raw-variance calibration gives alpha* ~= 0.001 (S_inter-dominated); a scale-invariant (relative-variance) calibration gives alpha ~= 0.82. Both composites yield the same descriptive ranking, and neither yields statistically significant between-condition differences — see `esi_honest_analysis.py` for the significance tests and threshold/sub-sampling sensitivity analyses.
 
-ESI ranges from 0 (no separation) to 1 (perfect separation). Values above 0.2 indicate analytically useful separation for water quality assessment.
+ESI is a **descriptive** index of elemental spatial organisation within this dataset (distances are in pixel units of the 256x256 EDS grid); it is not by itself a validated criterion for condition optimality.

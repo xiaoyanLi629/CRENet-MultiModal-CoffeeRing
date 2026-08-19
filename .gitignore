@@ -24,7 +24,14 @@ texput.log
 # Paper source and data (not included in public repo)
 paper/
 data/
+reference_materials/
+dataset_paper/
+statistical_analysis/
 
 # IDE
 .vscode/
 .idea/
+paper_camera_ready/
+paper_figures/
+results/esi_honest_run.log
+results/camera_ready_run.log
