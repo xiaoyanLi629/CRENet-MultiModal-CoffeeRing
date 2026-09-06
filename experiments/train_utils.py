@@ -237,6 +237,14 @@ def load_dataset(data_path: str, debug: bool = False):
 # Training loop (single fold)
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _forward(model, optical, sem, eds, modality_mask=None):
+    """Forward pass that only passes modality_mask when one is set (baseline
+    models do not accept the keyword)."""
+    if modality_mask:
+        return model(optical, sem, eds, modality_mask=modality_mask)
+    return model(optical, sem, eds)
+
+
 def train_one_fold(
     model: nn.Module,
     train_dataset,
@@ -264,6 +272,10 @@ def train_one_fold(
         num_workers=2, pin_memory=device.type == 'cuda',
     )
 
+    # Modality mask for ablation runs (stored on the _MaskedSubset wrapper);
+    # forwarded to the model in both the training and validation passes.
+    modality_mask = getattr(train_dataset, 'mask', None)
+
     criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=0.02)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
@@ -290,7 +302,7 @@ def train_one_fold(
             y       = batch['label'].view(-1).to(device)
 
             optimizer.zero_grad()
-            logits = model(optical, sem, eds)
+            logits = _forward(model, optical, sem, eds, modality_mask)
             loss   = criterion(logits, y)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
@@ -310,7 +322,7 @@ def train_one_fold(
                 eds     = batch['eds'].to(device)
                 y       = batch['label'].view(-1).to(device)
 
-                logits    = model(optical, sem, eds)
+                logits    = _forward(model, optical, sem, eds, modality_mask)
                 val_loss += criterion(logits, y).item()
                 preds.extend(logits.argmax(dim=1).cpu().tolist())
                 truths.extend(y.cpu().tolist())
@@ -477,6 +489,7 @@ def cross_validate(
 def _predict(model: nn.Module, dataset, device: torch.device, batch_size: int = 8):
     """Run inference on a dataset, return (predictions, truths) lists."""
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=2)
+    modality_mask = getattr(dataset, 'mask', None)
     model.eval()
     preds, truths = [], []
     with torch.no_grad():
@@ -486,7 +499,7 @@ def _predict(model: nn.Module, dataset, device: torch.device, batch_size: int = 
             eds     = batch['eds'].to(device)
             y       = batch['label'].view(-1)
 
-            logits = model(optical, sem, eds)
+            logits = _forward(model, optical, sem, eds, modality_mask)
             preds.extend(logits.argmax(dim=1).cpu().tolist())
             truths.extend(y.tolist())
     return preds, truths

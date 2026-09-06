@@ -27,7 +27,7 @@ A novel metric called the **Element Separation Index (ESI)** is introduced to qu
 | CRENetEfficient (multi-modal, late concat) | **88.9% +/- 5.8%** |
 | EfficientNet-B0 (optical-only, pretrained) | **92.0% +/- 2.3%** |
 | Early fusion (channel-inflated, pretrained) | **91.6% +/- 3.6%** |
-| CRENet scratch (multi-modal) | **76.9% +/- 1.1%** |
+| CRENet scratch (multi-modal, self-attention fusion; late-concat scratch: 80.4% +/- 8.2%) | **76.9% +/- 1.1%** |
 | Leave-one-recipe-out: CRENetEfficient / EfficientNet-B0 | 66.2% / 72.0% |
 | Optimal Condition (12 statistical analyses, 8/12 criteria) | **F** (23--26 C, 45--50% RH) |
 
@@ -93,7 +93,6 @@ CRENet.../                       ← Unified project (merged with former Nanochr
 │
 └── results/                     ← All experiment results (clean, no data leakage)
     ├── phase0/                  ← CRENet + RF + SVM + clean ESI (baseline)
-    ├── phase1/                  ← Modality ablation (7 configurations)
     ├── phase2/                  ← SOTA baselines
     ├── phase3/                  ← Fusion strategy ablation
     ├── phase6/                  ← CRENetEfficient (final model, 88.89%)
