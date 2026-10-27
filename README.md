@@ -14,9 +14,9 @@ The framework processes three complementary data modalities collected from each 
 
 - **Optical microscopy images** — capture macroscopic ring morphology (color, shape, ring width)
 - **Scanning Electron Microscopy (SEM) images** — reveal microstructure details (particle distribution, crystal formation)
-- **Energy-Dispersive X-ray Spectroscopy (EDS) maps** — provide spatial distribution of chemical elements (Na, Cl, Ca, Mg, K, S, Si)
+- **Energy-Dispersive X-ray Spectroscopy (EDS) maps** — provide spatial distribution of chemical elements (C, Ca, Cl, Mg, Na, O, S; Fe at 0.005 mM is below the EDS detection limit, so the O map is used as the seventh channel)
 
-A novel metric called the **Element Separation Index (ESI)** is introduced to quantitatively measure how well elements are spatially separated within the coffee-ring pattern. Higher ESI values indicate better element separation, which improves the analytical utility of the technique for water quality characterization.
+A novel metric called the **Element Separation Index (ESI)** is introduced to quantitatively measure how well elements are spatially separated within the coffee-ring pattern. Higher ESI values indicate better element separation. ESI is used as a descriptive index: Condition F has the highest mean ESI, but the between-condition differences are not statistically significant (ANOVA p = 0.92) and the top rank changes with the detection settings.
 
 ---
 
@@ -104,7 +104,7 @@ CRENet.../                       ← Unified project (merged with former Nanochr
 
 **`ml_framework.py`** is the single Python file that implements the entire ML pipeline. It includes the multi-modal CNN model definition (`MultiModalCNN`), the Element Separation Index calculation (`ElementSeparationIndex`), data loading and preprocessing, model training and evaluation, and result visualization. All code is in one file for portability.
 
-**`paper/`** contains the conference paper prepared for submission to ICANN 2026 (International Conference on Artificial Neural Networks), formatted according to the Springer LNCS template. To compile: run `pdflatex main && bibtex main && pdflatex main && pdflatex main` from within this directory.
+**`paper/`** contains the PRICAI 2026 camera-ready paper (accepted as a short paper; 23rd Pacific Rim International Conference on Artificial Intelligence, Guangzhou), formatted according to the Springer LNCS template. To compile: run `pdflatex main && bibtex main && pdflatex main && pdflatex main` from within this directory.
 
 **`data/`** holds the preprocessed (brightness/contrast enhanced) experimental data actually fed to the models, organized by modality (optical, SEM, EDS) and within each modality by environmental condition (subdirectories A through I). Each condition represents a specific combination of temperature and humidity. There are 225 samples (9 conditions x 25 samples/condition). The unprocessed originals live in `data/raw_data/` — see `data/raw_data/README.txt` for the exact differences.
 
@@ -243,7 +243,7 @@ data_path/
 
 ### Compiling the paper
 
-To compile the ICANN 2026 paper from LaTeX source:
+To compile the PRICAI 2026 paper from LaTeX source:
 
 ```bash
 cd paper
@@ -274,7 +274,7 @@ The framework uses multiple statistical methods to validate results beyond ML cl
 
 ## Conference
 
-**ICANN 2026** — International Conference on Artificial Neural Networks
+**PRICAI 2026** — 23rd Pacific Rim International Conference on Artificial Intelligence, Guangzhou (paper 324, short paper; poster session S11.1)
 - Format: Springer Lecture Notes in Computer Science (LNCS)
 - Template: `llncs` class with `runningheads` option
 - Bibliography style: `splncs04`
