@@ -1,7 +1,7 @@
 """
 experiments/run_experiments.py
 ==============================
-Unified experiment runner for all ICANN 2026 phases.
+Unified experiment runner for all PRICAI 2026 phases.
 
 Usage examples
 --------------
@@ -763,7 +763,7 @@ def _print_fusion_table(all_results):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def parse_args():
-    p = argparse.ArgumentParser(description='ICANN 2026 Experiment Runner')
+    p = argparse.ArgumentParser(description='PRICAI 2026 Experiment Runner')
     p.add_argument('--phase',      type=int, required=True,
                    help='Experiment phase: 0=base, 1=ablation, 2=baselines, '
                         '3=fusion, 4=attention, 5=perclass')

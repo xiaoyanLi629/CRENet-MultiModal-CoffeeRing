@@ -1,7 +1,7 @@
 """
 experiments/models.py
 =====================
-All model definitions for ICANN 2026 experiments.
+All model definitions for PRICAI 2026 experiments.
 
 Models:
   - CRENet               : Original CRENet (scratch CNN encoders, self-attention fusion)

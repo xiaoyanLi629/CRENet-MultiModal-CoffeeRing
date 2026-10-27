@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-# run_all.sh — Run all ICANN 2026 experiment phases in sequence
+# run_all.sh — Run all PRICAI 2026 experiment phases in sequence
 # ============================================================
 # Usage:
 #   chmod +x experiments/run_all.sh
@@ -19,7 +19,7 @@ EXTRA_ARGS="${@}"   # pass --debug or any extra flags through
 PYTHON="python"
 
 echo "======================================================"
-echo "ICANN 2026 Experiment Suite"
+echo "PRICAI 2026 Experiment Suite"
 echo "Data:   $DATA_PATH"
 echo "Output: $OUTPUT_DIR"
 echo "Extra:  $EXTRA_ARGS"

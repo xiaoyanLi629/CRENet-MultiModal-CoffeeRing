@@ -22,7 +22,7 @@ read_acc() {
 }
 
 log "======================================================"
-log "ICANN 2026 Experiment Pipeline"
+log "PRICAI 2026 Experiment Pipeline"
 log "CRENet Phase-0 baseline: 76.89% (already done)"
 log "======================================================"
 
